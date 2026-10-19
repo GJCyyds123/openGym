@@ -1,0 +1,60 @@
+# Publishes a personal, browser-only openGym to GitHub Pages: https://gjcyyds123.github.io/openGym/
+#
+# For using openGym on an iPhone without a server: open the address in Safari, tap
+# "Continue without account" once, then Share → Add to Home Screen. Everything is stored on the
+# phone (guest mode, localStorage); Pages only serves the static app, never any training data.
+#
+# Same build as the upstream demo (.github/workflows/pages.yml) minus VITE_DEMO, so it starts empty
+# instead of with the seeded example history. Keep upstream's pages.yml disabled in this fork —
+# both deploy to the same Pages site. A separate file so "Sync fork" never conflicts with upstream.
+name: Deploy personal app to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'catalogue/**'
+      - 'scripts/catalogue/**'
+      - '.github/workflows/iphone-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --ignore-scripts
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+      # The 180 px stills and animations from catalogue/media, served next to the app
+      - run: node scripts/catalogue/stage-media.mjs frontend/dist
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: frontend/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v5
