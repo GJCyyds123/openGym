@@ -10,6 +10,7 @@ import { PLATE_SIZES, pairsOf, ownsPlates, withPlatePairs, withStandardPlates, w
 import { toScale, rirOf, EFFORT_PRESETS, effortColor } from './lib/effort.js'
 import { beep, vibrate } from './lib/sound.js'
 import { t, tn, dateLocale, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from './lib/i18n.js'
+import { APP_NAME } from './lib/brand.js'
 import { nav, closeThenNav, navToWorkout } from './lib/nav.js'
 import { buildStarterPlan, starterPlanDays, starterPlanOptions } from './lib/starter.js'
 import Media, { Thumb } from './components/Media.jsx'
@@ -2621,7 +2622,7 @@ function ShareWorkoutImage({ w, nameOf, close }) {
   const name = 'opengym-workout-' + (workoutDay(w) || todayISO()) + '.png'
   const share = async () => {
     setBusy(true)
-    await shareImage(img.blob, name, w.name || 'openGym')
+    await shareImage(img.blob, name, w.name || APP_NAME)
     setBusy(false)
     close()
   }

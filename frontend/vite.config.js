@@ -88,6 +88,31 @@ const flavor = {
   }
 }
 
+// A rebranded build (VITE_APP_NAME, see src/lib/brand.js) puts its own name in the page title, the
+// home-screen name and the manifest; VITE_DEFAULT_LANG also sets <html lang> and the manifest's
+// lang. Unset — every upstream build — index.html and manifest.json ship exactly as they are.
+const appName = (process.env.VITE_APP_NAME || '').trim()
+const buildLang = process.env.VITE_DEFAULT_LANG || ''
+const escAttr = s => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+const brand = {
+  name: 'opengym-brand',
+  transformIndexHtml(html) {
+    if (appName) html = html
+      .replace('<title>openGym</title>', `<title>${escAttr(appName)}</title>`)
+      .replace('name="apple-mobile-web-app-title" content="openGym"', `name="apple-mobile-web-app-title" content="${escAttr(appName)}"`)
+    if (buildLang) html = html.replace('<html lang="en">', `<html lang="${escAttr(buildLang)}">`)
+    return html
+  },
+  closeBundle() {
+    const file = join(outDir, 'manifest.json')
+    if (!appName || !existsSync(file)) return
+    const manifest = JSON.parse(readFileSync(file, 'utf8'))
+    manifest.name = manifest.short_name = appName
+    if (buildLang) manifest.lang = buildLang
+    writeFileSync(file, JSON.stringify(manifest, null, 2) + '\n')
+  }
+}
+
 // The version people are asked for in #install-help and on every bug report. Read from
 // package.json so it cannot drift from the release it was built in, and inlined at build
 // time so no runtime fetch is involved.
@@ -102,7 +127,7 @@ const appVersion = process.env.APP_BUILD ? `${pkgVersion}+${process.env.APP_BUIL
 
 export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(appVersion) },
-  plugins: [react(), umami, flavor, swStamp, catalogueMedia],
+  plugins: [react(), umami, flavor, brand, swStamp, catalogueMedia],
   base: './',
   server: {
     // The Coach's core (payload, validator, prompts, HTTP adapters) lives in ../api/coach/core

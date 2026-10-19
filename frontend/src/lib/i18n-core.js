@@ -2,6 +2,7 @@
 // instrFor, exerciseNameFor, getLang). Plain Node-loadable — the browser-only pieces
 // (import.meta.glob lazy
 // loads, the React subscription hook) live in i18n.js and re-export from here.
+import { brand } from './brand.js'
 
 export const LANGS = {
   en: 'English', de: 'Deutsch', 'de-CH': 'Deutsch (Schweiz)', es: 'Español', fr: 'Français',
@@ -84,7 +85,8 @@ export function t(s, ...args) {
     v = (typeof args[0] === 'number' && forms[pluralCategory(args[0])]) || forms.other || forms.many || forms.one || s
   }
   for (let i = 0; i < args.length; i++) v = v.replaceAll('{' + i + '}', args[i])
-  return v
+  // A rebranded build (VITE_APP_NAME) shows its own name wherever a string says openGym
+  return brand(v)
 }
 
 /* ------------------------------------------------------------------ plurals --
@@ -121,7 +123,7 @@ export function tn(one, other, n, ...rest) {
       let v = form
       const args = [n, ...rest]
       for (let i = 0; i < args.length; i++) v = v.replaceAll('{' + i + '}', args[i])
-      return v
+      return brand(v)
     }
   }
   return t(n === 1 ? one : other, n, ...rest)

@@ -10,6 +10,7 @@
 
 import { EXIDX, canonicalExId, isBodyweightEq } from './exercises.js'
 import { cleanUrl } from './media-refs.js'
+import { APP_NAME, REBRANDED } from './brand.js'
 import { modeOf, exLine, MAX_PLANNED_WARMUPS } from './history.js'
 import { deriveSessionName } from './session-merge.js'
 import { isPyramid, normalizePyramid, normalizePyramidRest, normalizePyramidWeight } from './pyramid.js'
@@ -466,13 +467,13 @@ export function planPrintHTML(S, owner, { routineId } = {}) {
 </style></head>
 <body><div class="doc">
   <header>
-    <div class="kicker">openGym</div>
+    <div class="kicker">${esc(APP_NAME)}</div>
     <h1>${esc(title)}</h1>
     ${sub ? `<div class="sub">${sub}</div>` : ''}
   </header>
   ${week}
   ${body}
-  <footer>${esc(t('Made with openGym'))} · opengym.ch</footer>
+  <footer>${esc(t('Made with openGym'))}${REBRANDED ? '' : ' · opengym.ch'}</footer>
 </div></body></html>`
 }
 

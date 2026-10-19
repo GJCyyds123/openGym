@@ -18,6 +18,10 @@ import { LANGS } from './i18n-core.js'
 
 const KEYS = Object.keys(LANGS)
 
+// The build's own default (VITE_DEFAULT_LANG), for a build with no server to ask — a static
+// deployment never gets a DEFAULT_LANG from /api/config. An instance's DEFAULT_LANG still wins.
+const BUILD_LANG = (import.meta.env || {}).VITE_DEFAULT_LANG || ''
+
 /** A language tag ('pt-BR', 'pt_br', 'de-AT', 'en-US') as one of LANGS' keys, or null. */
 export function matchLocale(tag) {
   if (typeof tag !== 'string') return null
@@ -36,6 +40,7 @@ export function matchLocale(tag) {
 export function autoLang(S, config, navLangs = []) {
   if (!S || S.langAuto !== true) return null
   return matchLocale(config?.default_lang)
+    || matchLocale(BUILD_LANG)
     || (navLangs || []).map(matchLocale).find(Boolean)
     || 'en'
 }
@@ -62,8 +67,8 @@ export function effectiveLang(S, config, navLangs = browserLangs()) {
   let cfg = config
   if (!cfg) {
     const seen = cachedDefaultLang()
-    if (seen === null) return own
-    cfg = { default_lang: seen }
+    if (seen === null && !BUILD_LANG) return own
+    cfg = { default_lang: seen || '' }
   }
   return autoLang(S, cfg, navLangs) || own
 }

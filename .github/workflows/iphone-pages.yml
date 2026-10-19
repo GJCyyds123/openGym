@@ -5,7 +5,7 @@
 # phone (guest mode, localStorage); Pages only serves the static app, never any training data.
 #
 # Same build as the upstream demo (.github/workflows/pages.yml) minus VITE_DEMO, so it starts empty
-# instead of with the seeded example history. Keep upstream's pages.yml disabled in this fork —
+# instead of with the seeded example history, and rebranded as 嘉园 in Simplified Chinese. Keep upstream's pages.yml disabled in this fork —
 # both deploy to the same Pages site. A separate file so "Sync fork" never conflicts with upstream.
 name: Deploy personal app to GitHub Pages
 
@@ -42,6 +42,11 @@ jobs:
         working-directory: frontend
       - run: npm run build
         working-directory: frontend
+        env:
+          # Rebrand (src/lib/brand.js): product name, Chinese by default, source link to this fork
+          VITE_APP_NAME: 嘉园
+          VITE_DEFAULT_LANG: zh
+          VITE_SOURCE_URL: https://github.com/${{ github.repository }}
       # The 180 px stills and animations from catalogue/media, served next to the app
       - run: node scripts/catalogue/stage-media.mjs frontend/dist
       - uses: actions/configure-pages@v6
