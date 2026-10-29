@@ -1,4 +1,6 @@
-// Mobile build only: how the Coach should run on this phone.
+// Mobile build, or a web build with VITE_COACH_BYOK=1: how the Coach should run on this device.
+// The web build only has the second answer below — there is no server for it to hand the Coach to
+// — and says "browser" where the phone says "phone".
 //
 // Two answers. "Use my self-hosted openGym" hands the whole thing to the paired server — the
 // same Coach the web app has, with whatever provider its admin configured; the phone only has
@@ -13,8 +15,10 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { useUI } from '../store/useUI.js'
-import { t } from '../lib/i18n.js'
+import { t, getLang } from '../lib/i18n.js'
 import { MOBILE } from '../lib/mobile.js'
+import { deviceCoach } from '../lib/coach-device.js'
+import { COMPATIBLE_PRESETS, presetFor, presetName } from '../lib/coach-presets.js'
 import { CATEGORY_TEXT } from '../lib/coach.js'
 import { getApiKey, setApiKey, clearApiKey } from '../lib/coach-secrets.js'
 import { HTTP_PROVIDERS, HTTP_PROVIDER_IDS, baseUrlFor, validateBaseUrl } from '../../../api/coach/core/providers.js'
@@ -32,8 +36,13 @@ const STEPS = () => [t('Loading the exercise catalogue…'), t('Checking the end
 // therefore failed as a bare "could not reach the provider", with nothing to say why. It is
 // refused up front with the two ways that work: HTTPS in front of the model, or the server's
 // Coach, which has no such rule and reaches http:// on its own network.
+// A page served over https:// may not call http:// at all (mixed content), so the web build
+// refuses it up front too, with the reason that applies there.
 const isCleartext = url => /^http:\/\//i.test(String(url || '').trim())
-const cleartextRefused = () => t('Android blocks unencrypted http:// connections from apps, so this phone can only reach an https:// endpoint. Put HTTPS in front of it (Tailscale or a reverse proxy), or choose “Use my self-hosted openGym”: your server can reach an http:// model on its own network.')
+const cleartextBlocked = url => isCleartext(url) && (MOBILE || globalThis.location?.protocol === 'https:')
+const cleartextRefused = () => MOBILE
+  ? t('Android blocks unencrypted http:// connections from apps, so this phone can only reach an https:// endpoint. Put HTTPS in front of it (Tailscale or a reverse proxy), or choose “Use my self-hosted openGym”: your server can reach an http:// model on its own network.')
+  : t('This page is served over https://, so the browser can only reach an https:// endpoint.')
 
 export default function CoachSetup() {
   const nav = useNavigate()
@@ -45,7 +54,7 @@ export default function CoachSetup() {
   const toast = useUI(s => s.toast)
   const openSheet = useUI(s => s.openSheet)
 
-  const [choice, setChoice] = useState(null)              // 'server' | 'byok' | null
+  const [choice, setChoice] = useState(MOBILE ? null : 'byok')   // 'server' | 'byok' | null
   const [provider, setProvider] = useState(coachLocal?.provider || 'anthropic')
   const [baseUrl, setBaseUrl] = useState(coachLocal?.baseUrl || '')
   const [model, setModel] = useState(coachLocal?.model || '')
@@ -55,7 +64,7 @@ export default function CoachSetup() {
   const [step, setStep] = useState(-1)                     // -1 idle, 0..2 running, 3 done
   const [busy, setBusy] = useState(false)
 
-  useEffect(() => { if (!MOBILE) nav('/settings', { replace: true }) }, [])
+  useEffect(() => { if (!deviceCoach()) nav('/settings', { replace: true }) }, [])
   useEffect(() => { getApiKey().then(k => setHasKey(!!k)) }, [])
   // Ask the paired server afresh: the admin may have switched the Coach on since this phone booted.
   useEffect(() => { if (user) refreshConfig() }, [user])
@@ -64,6 +73,13 @@ export default function CoachSetup() {
   const meta = HTTP_PROVIDERS[provider] || {}
   const host = hostOf(baseUrlFor(provider, { providerOptions: { [provider]: { baseUrl } } }))
   const serverHasCoach = !!(user && config?.coach?.enabled)
+  // A preset is the compatible provider with its endpoint filled in; the model it suggests is
+  // preselected once "List models" shows the endpoint still serves it.
+  const preset = presetFor(provider, baseUrl)
+  const applyPreset = p => {
+    setProvider('compatible'); setBaseUrl(p.baseUrl)
+    setModels(null); setModel(''); setStep(-1)
+  }
 
   const useServer = async () => {
     if (!user) return openSheet(close => <ConnectSheet close={close} />)
@@ -79,8 +95,9 @@ export default function CoachSetup() {
     // An empty field passes the validator on purpose: for a provider with a fixed endpoint,
     // empty means the default. This one has no default, so empty is nowhere to call.
     if (meta.baseUrl && !meta.defaultBase && !v.value) return toast(t('Enter the endpoint URL'))
-    if (isCleartext(v.value)) return toast(cleartextRefused())
-    if (!meta.keyOptional && !key.trim() && !hasKey) return toast(t('Enter your API key'))
+    if (cleartextBlocked(v.value)) return toast(cleartextRefused())
+    // A compatible endpoint may need no key (a model on the LAN); a hosted preset always does.
+    if ((!meta.keyOptional || preset) && !key.trim() && !hasKey) return toast(t('Enter your API key'))
     setBusy(true); setStep(0)
     try {
       const local = await import('../lib/coach-local.js')
@@ -90,7 +107,8 @@ export default function CoachSetup() {
       if (!r.ok) { setStep(-1); toast(t('Could not reach the provider: {0}', r.error)); return }
       setModels(r.models)
       setStep(2)
-      if (!model && meta.defaultModel && r.models.includes(meta.defaultModel)) setModel(meta.defaultModel)
+      const start = meta.defaultModel || preset?.model
+      if (!model && start && r.models.includes(start)) setModel(start)
     } catch (e) {
       setStep(-1); toast(e.message || t('Could not connect'))
     } finally { setBusy(false) }
@@ -106,7 +124,7 @@ export default function CoachSetup() {
     const chosen = model || meta.defaultModel
     if (!chosen) return toast(t('Pick a model'))
     // The endpoint can still be edited after the models were listed.
-    if (isCleartext(v.value)) return toast(cleartextRefused())
+    if (cleartextBlocked(v.value)) return toast(cleartextRefused())
     setBusy(true)
     try {
       // The mode first, the key second: the settings file is the cheap, reliable write, the
@@ -126,13 +144,14 @@ export default function CoachSetup() {
     await setCoachLocal({ mode: 'off' })
     const local = await import('../lib/coach-local.js').catch(() => null)
     if (local) await local.localForget()
-    setChoice(null)
+    setChoice(MOBILE ? null : 'byok')
     toast(t('The Coach is off'))
   }
 
   const current = coachLocal?.mode === 'server' ? t('Runs on your openGym server')
-    : coachLocal?.mode === 'byok' ? t('Runs on this phone with your own API key')
+    : coachLocal?.mode === 'byok' ? (MOBILE ? t('Runs on this phone with your own API key') : t('Runs in this browser with your own API key'))
     : t('Off. Choose how the Coach should run.')
+  const lang = getLang()
 
   return <div className="narrow">
     <div className="hdr">
@@ -141,11 +160,13 @@ export default function CoachSetup() {
     </div>
 
     <Section title={t('How should the Coach run?')} footer={current}>
-      <Row icon="rocket" iconTint="var(--indigo)" title={t('Use my self-hosted openGym')}
+      {MOBILE && <Row icon="rocket" iconTint="var(--indigo)" title={t('Use my self-hosted openGym')}
         subtitle={user ? (serverHasCoach ? t('Your server runs the Coach with whatever provider its admin set up. Nothing new leaves this phone beyond what already syncs.') : config == null ? t('Loading…') : t('Your server has no Coach enabled. Ask its admin, or bring your own key below.')) : t('Connect to my server')}
-        accessory="chevron" onClick={() => { if (!user || serverHasCoach) useServer(); else setChoice('server') }} />
+        accessory="chevron" onClick={() => { if (!user || serverHasCoach) useServer(); else setChoice('server') }} />}
       <Row icon="key" iconTint="var(--acc)" title={t('Bring my own API key')}
-        subtitle={t('This phone calls the provider directly with your key. Every request is charged to your account.')}
+        subtitle={MOBILE
+          ? t('This phone calls the provider directly with your key. Every request is charged to your account.')
+          : t('This browser calls the provider directly with your key. Every request is charged to your account.')}
         accessory="chevron" onClick={() => setChoice('byok')} />
     </Section>
 
@@ -154,6 +175,14 @@ export default function CoachSetup() {
     </div>}
 
     {choice === 'byok' && <>
+      <Section title={t('Quick setup')}
+        footer={preset ? <a href={preset.keyUrl} target="_blank" rel="noopener">{t('Get an API key from {0}', presetName(preset, lang))}</a> : null}>
+        <div className="row" style={{ flexWrap: 'wrap', gap: 7, padding: '8px 12px' }}>
+          {COMPATIBLE_PRESETS.map(p => <button key={p.id} className={'chip preset' + (preset?.id === p.id ? ' on' : '')} disabled={busy}
+            onClick={() => applyPreset(p)}>{presetName(p, lang)}</button>)}
+        </div>
+      </Section>
+
       <Section title={t('Provider')}>
         <div className="row" style={{ flexWrap: 'wrap', gap: 7, padding: '8px 12px' }}>
           {HTTP_PROVIDER_IDS.map(id => <button key={id} className={'chip' + (id === provider ? ' on' : '')} disabled={busy}
@@ -162,21 +191,23 @@ export default function CoachSetup() {
       </Section>
 
       {meta.baseUrl && <Section title={t('Endpoint')}
-        footer={isCleartext(baseUrl) ? <span style={{ color: 'var(--red)' }}>{cleartextRefused()}</span> : null}>
+        footer={cleartextBlocked(baseUrl) ? <span style={{ color: 'var(--red)' }}>{cleartextRefused()}</span> : null}>
         <div style={{ padding: '8px 12px' }}>
           <TextField value={baseUrl} placeholder="https://ollama.example.com" inputMode="url" autoCapitalize="none" autoCorrect="off"
             onChange={e => setBaseUrl(e.target.value)} />
         </div>
       </Section>}
 
-      <Section title={t('API key')} footer={t('The key is stored in this phone’s secure storage and never leaves it except to call the provider.')}>
+      <Section title={t('API key')} footer={MOBILE
+        ? t('The key is stored in this phone’s secure storage and never leaves it except to call the provider.')
+        : t('The key is kept in this browser on this device and is only ever sent to the provider.')}>
         <div style={{ padding: '8px 12px' }}>
-          <TextField value={key} type="password" placeholder={hasKey ? '••••••••  ' + t('(saved)') : (meta.keyPlaceholder || 'sk-…')} autoCapitalize="none" autoCorrect="off"
+          <TextField value={key} type="password" placeholder={hasKey ? '••••••••  ' + t('(saved)') : preset ? 'sk-…' : (meta.keyPlaceholder || 'sk-…')} autoCapitalize="none" autoCorrect="off"
             onChange={e => setKey(e.target.value)} />
         </div>
       </Section>
 
-      <Section title={t('What leaves this phone')}>
+      <Section title={MOBILE ? t('What leaves this phone') : t('What leaves this device')}>
         {DATA_CATEGORIES.map(k => {
           const [title, sub] = CATEGORY_TEXT[k]?.() || [k, '']
           return <Row key={k} icon="check" iconTint="var(--acc)" title={title} subtitle={sub} />
@@ -211,7 +242,7 @@ export default function CoachSetup() {
     </>}
 
     {coachLocal?.mode && coachLocal.mode !== 'off' && <Section title={t('Controls')}>
-      <Row icon="signOut" iconTint="var(--red)" title={t('Turn the Coach off on this phone')} danger onClick={turnOff} />
+      <Row icon="signOut" iconTint="var(--red)" title={MOBILE ? t('Turn the Coach off on this phone') : t('Turn the Coach off in this browser')} danger onClick={turnOff} />
     </Section>}
   </div>
 }

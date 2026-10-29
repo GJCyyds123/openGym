@@ -2242,4 +2242,12 @@ export default {
   'Your sports watch, calling you back.': 'O teu relógio desportivo a chamar-te de volta.',
   'Coach wants you back on the bar.': 'O coach quer-te de volta à barra.',
   'Gentle, for headphones or a quiet room.': 'Suave, para auscultadores ou uma sala sossegada.',
+  'This page is served over https://, so the browser can only reach an https:// endpoint.': 'Esta página é servida por https://, por isso o navegador só chega a um endpoint https://.',
+  'Quick setup': 'Configuração rápida',
+  'Get an API key from {0}': 'Obtém uma chave de API em {0}',
+  'This browser calls the provider directly with your key. Every request is charged to your account.': 'Este navegador chama o fornecedor diretamente com a tua chave. Cada pedido é cobrado na tua conta.',
+  'The key is kept in this browser on this device and is only ever sent to the provider.': 'A chave fica neste navegador, neste dispositivo, e só é enviada ao fornecedor.',
+  'What leaves this device': 'O que sai deste dispositivo',
+  'Turn the Coach off in this browser': 'Desligar o Treinador neste navegador',
+  'Runs in this browser with your own API key': 'Corre neste navegador com a tua própria chave de API'
 }

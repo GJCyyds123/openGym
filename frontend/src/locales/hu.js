@@ -2245,4 +2245,12 @@ export default {
   'Your sports watch, calling you back.': 'A sportórád visszahív.',
   'Coach wants you back on the bar.': 'Az edző visszavár a rúdhoz.',
   'Gentle, for headphones or a quiet room.': 'Halk, fülhallgatóhoz vagy csendes helyre.',
+  'This page is served over https://, so the browser can only reach an https:// endpoint.': 'Ez az oldal https:// protokollal érkezik, ezért a böngésző csak https:// végpontot ér el.',
+  'Quick setup': 'Gyors beállítás',
+  'Get an API key from {0}': 'API-kulcs beszerzése: {0}',
+  'This browser calls the provider directly with your key. Every request is charged to your account.': 'Ez a böngésző közvetlenül, a kulcsoddal hívja a szolgáltatót. Minden kérést a te fiókodra terhel.',
+  'The key is kept in this browser on this device and is only ever sent to the provider.': 'A kulcs ezen az eszközön, ebben a böngészőben marad, és csak a szolgáltatónak kerül elküldésre.',
+  'What leaves this device': 'Mi hagyja el ezt az eszközt',
+  'Turn the Coach off in this browser': 'Az Edző kikapcsolása ebben a böngészőben',
+  'Runs in this browser with your own API key': 'Ebben a böngészőben fut a saját API-kulcsoddal'
 }

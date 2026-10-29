@@ -17,6 +17,7 @@ import CoachSetup from './CoachSetup.jsx'
 import { getApiKey, setApiKey, clearApiKey } from '../lib/coach-secrets.js'
 import { localModels, localForget } from '../lib/coach-local.js'
 import { CATEGORY_TEXT } from '../lib/coach.js'
+import { COMPATIBLE_PRESETS } from '../lib/coach-presets.js'
 import { HTTP_PROVIDERS } from '../../../api/coach/core/providers.js'
 import { DATA_CATEGORIES } from '../../../api/coach/core/categories.js'
 
@@ -163,7 +164,7 @@ describe('CoachSetup — "use my self-hosted openGym"', () => {
 describe('CoachSetup — bringing your own key', () => {
   it('offers exactly the providers the shared table lists, Anthropic first', async () => {
     await mount(); await openByok()
-    expect(all('.chip').map(c => c.textContent)).toEqual(Object.values(HTTP_PROVIDERS).map(p => p.label))
+    expect(all('.chip:not(.preset)').map(c => c.textContent)).toEqual(Object.values(HTTP_PROVIDERS).map(p => p.label))
     expect(chip('Anthropic API').classList.contains('on')).toBe(true)
   })
 
@@ -321,6 +322,72 @@ describe('CoachSetup — listing the models', () => {
     await click(btn('List models')); await settle()
     expect(localModels).toHaveBeenLastCalledWith({ provider: 'gemini', baseUrl: null }, 'sk-1')
     expect(host.querySelector('select').value).toBe('gemini-2.5-pro')
+  })
+})
+
+describe('CoachSetup — quick setup (DeepSeek, Qwen)', () => {
+  it('offers the presets above the providers, none of them on until chosen', async () => {
+    await mount(); await openByok()
+    expect(all('.chip.preset').map(c => c.textContent)).toEqual(COMPATIBLE_PRESETS.map(p => p.names.en))
+    expect(all('.chip.preset.on')).toEqual([])
+    expect(host.textContent).not.toContain('Get an API key from')
+  })
+
+  it('a preset is the compatible provider with its endpoint filled in, and says where the key comes from', async () => {
+    await mount(); await openByok()
+    await click(chip('DeepSeek'))
+    expect(chip('OpenAI-compatible endpoint').classList.contains('on')).toBe(true)
+    expect(chip('DeepSeek').classList.contains('on')).toBe(true)
+    expect(field('text').value).toBe('https://api.deepseek.com')
+    const link = all('a').find(a => a.textContent === 'Get an API key from DeepSeek')
+    expect(link.getAttribute('href')).toBe('https://platform.deepseek.com/api_keys')
+    expect(host.textContent).toContain('Each request goes straight to api.deepseek.com with your key')
+  })
+
+  it('a hosted preset needs a key, unlike a bare compatible endpoint', async () => {
+    await mount(); await openByok()
+    await click(chip('DeepSeek'))
+    expect(field('password').getAttribute('placeholder')).toBe('sk-…')
+    await click(btn('List models')); await settle()
+    expect(mocks.toast).toHaveBeenCalledWith('Enter your API key')
+    expect(localModels).not.toHaveBeenCalled()
+  })
+
+  it('pre-picks the preset’s model once the endpoint lists it, and saves the whole setup', async () => {
+    await mount(); await openByok()
+    await click(chip('Qwen'))
+    typeIn(field('password'), 'sk-dash')
+    vi.mocked(localModels).mockResolvedValue({ ok: true, models: ['qwen-max', 'qwen-plus'] })
+    await click(btn('List models')); await settle()
+    expect(localModels).toHaveBeenCalledWith({ provider: 'compatible', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1' }, 'sk-dash')
+    expect(host.querySelector('select').value).toBe('qwen-plus')
+    await click(btn('Save and use the Coach')); await settle()
+    expect(mocks.setCoachLocal).toHaveBeenCalledWith({ mode: 'byok', provider: 'compatible', model: 'qwen-plus', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1' })
+    expect(setApiKey).toHaveBeenCalledWith('sk-dash')
+  })
+
+  it('leaves the model to you when the endpoint no longer serves the preset’s', async () => {
+    await mount(); await openByok()
+    await click(chip('DeepSeek'))
+    typeIn(field('password'), 'sk-ds')
+    vi.mocked(localModels).mockResolvedValue({ ok: true, models: ['deepseek-v4'] })
+    await click(btn('List models')); await settle()
+    expect(host.querySelector('select').value).toBe('')
+  })
+
+  it('switching presets throws the listed models away, and editing the endpoint unmarks the preset', async () => {
+    await mount(); await openByok()
+    await click(chip('DeepSeek'))
+    typeIn(field('password'), 'sk-ds')
+    vi.mocked(localModels).mockResolvedValue({ ok: true, models: ['deepseek-chat'] })
+    await click(btn('List models')); await settle()
+    expect(host.querySelector('select')).toBeTruthy()
+    await click(chip('Qwen'))
+    expect(host.querySelector('select')).toBe(null)
+    expect(field('text').value).toBe('https://dashscope.aliyuncs.com/compatible-mode/v1')
+    typeIn(field('text'), 'https://my-gateway.example.com/v1')
+    expect(all('.chip.preset.on')).toEqual([])
+    expect(chip('OpenAI-compatible endpoint').classList.contains('on')).toBe(true)
   })
 })
 

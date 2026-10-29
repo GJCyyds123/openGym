@@ -1403,6 +1403,11 @@ export const PT_BR_OVERRIDES = {
   'Gentle, for headphones or a quiet room.': 'Suave, para fones de ouvido ou um lugar silencioso.',
   'Fewer than two workouts in this period. Pick a longer one.': 'Menos de dois treinos neste período. Escolha um mais longo.',
   'Releases are checked on GitHub. The download is verified against its checksum before the installer opens.': 'As versões são verificadas no GitHub. O download é conferido pela soma de verificação antes de abrir o instalador.',
+  'This page is served over https://, so the browser can only reach an https:// endpoint.': 'Esta página é servida por https://, então o navegador só consegue acessar um endpoint https://.',
+  'Get an API key from {0}': 'Obtenha uma chave de API em {0}',
+  'This browser calls the provider directly with your key. Every request is charged to your account.': 'Este navegador chama o provedor diretamente com a sua chave. Cada pedido é cobrado na sua conta.',
+  'The key is kept in this browser on this device and is only ever sent to the provider.': 'A chave fica neste navegador, neste dispositivo, e só é enviada ao provedor.',
+  'Runs in this browser with your own API key': 'Roda neste navegador com a sua própria chave de API',
 }
 
 export default { ...pt, ...PT_BR_OVERRIDES }

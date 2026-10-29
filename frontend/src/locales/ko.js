@@ -2242,4 +2242,12 @@ export default {
   'Your sports watch, calling you back.': '스포츠 시계가 다시 부르고 있어요.',
   'Coach wants you back on the bar.': '코치가 바 앞으로 돌아오래요.',
   'Gentle, for headphones or a quiet room.': '이어폰이나 조용한 곳에 어울려요.',
+  'This page is served over https://, so the browser can only reach an https:// endpoint.': '이 페이지는 https://로 제공되므로 브라우저는 https:// 엔드포인트에만 연결할 수 있습니다.',
+  'Quick setup': '빠른 설정',
+  'Get an API key from {0}': '{0}에서 API 키 받기',
+  'This browser calls the provider directly with your key. Every request is charged to your account.': '이 브라우저가 당신의 키로 제공자를 직접 호출합니다. 모든 요청은 당신의 계정에 청구됩니다.',
+  'The key is kept in this browser on this device and is only ever sent to the provider.': '키는 이 기기의 이 브라우저에 보관되며 제공자에게만 전송됩니다.',
+  'What leaves this device': '이 기기에서 나가는 것',
+  'Turn the Coach off in this browser': '이 브라우저에서 코치 끄기',
+  'Runs in this browser with your own API key': '이 브라우저에서 내 API 키로 실행'
 }

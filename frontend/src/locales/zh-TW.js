@@ -2235,4 +2235,12 @@ export default {
   'Your sports watch, calling you back.': '你的運動手錶在叫你回來。',
   'Coach wants you back on the bar.': '教練等你回到槓鈴前。',
   'Gentle, for headphones or a quiet room.': '輕柔，適合耳機或安靜的房間。',
+  'This page is served over https://, so the browser can only reach an https:// endpoint.': '此頁面透過 https:// 提供，因此瀏覽器只能連線至 https:// 端點。',
+  'Quick setup': '快速設定',
+  'Get an API key from {0}': '取得 API 金鑰：{0}',
+  'This browser calls the provider directly with your key. Every request is charged to your account.': '此瀏覽器會用你的金鑰直接呼叫提供商 API，每筆請求費用皆由你的帳號自行負擔。',
+  'The key is kept in this browser on this device and is only ever sent to the provider.': '金鑰只保存在這台裝置的此瀏覽器中，除發送 API 請求給該提供商外絕不外洩。',
+  'What leaves this device': '有哪些資料會離開此裝置',
+  'Turn the Coach off in this browser': '在此瀏覽器中關閉教練功能',
+  'Runs in this browser with your own API key': '使用自己的 API 金鑰於此瀏覽器直接執行'
 }

@@ -21,7 +21,7 @@ import { appBase } from '../lib/app-base.js'
 import { linkTokenFromSearch, stripLinkFromUrl } from '../lib/device-link.js'
 import { loadRemote, chooseLocal, forgetRemote, connect, normalizeServerUrl, renewToken } from '../lib/remote.js'
 import { loadCfAccess } from '../lib/cf-access.js'
-import { loadCoachDevice, saveCoachDevice, coachDeviceSettings } from '../lib/coach-device.js'
+import { WEB_BYOK, loadCoachDevice, saveCoachDevice, coachDeviceSettings } from '../lib/coach-device.js'
 import { RTL_LANGS } from '../lib/i18n-core.js'
 import { DEFAULT_TEMPLATE_ID } from '../lib/structuralBalanceTemplates.js'
 
@@ -1910,6 +1910,9 @@ export const useStore = create((set, get) => {
         finishBoot({ needsMobileOnboarding: !remote && !hasData(get().S) })
         return
       }
+      // A web build that runs the own-key Coach (VITE_COACH_BYOK): which provider it uses is a
+      // device fact, read once here like the phone's, so Plan shows the Coach without a server.
+      if (WEB_BYOK) loadCoachDevice().then(d => set({ coachLocal: coachDeviceSettings(d) })).catch(() => {})
       // Demo build (GitHub Pages): no backend at all — seed once, stay in guest mode.
       if (DEMO) {
         if (!localStorage.getItem(DEMO_SEEDED)) {

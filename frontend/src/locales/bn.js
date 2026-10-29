@@ -2321,4 +2321,12 @@ export default {
   'Your sports watch, calling you back.': 'আপনার স্পোর্টস ঘড়ি আপনাকে ফিরে ডাকছে।',
   'Coach wants you back on the bar.': 'কোচ আপনাকে আবার বারে চান।',
   'Gentle, for headphones or a quiet room.': 'মৃদু, হেডফোন বা শান্ত ঘরের জন্য।',
+  'This page is served over https://, so the browser can only reach an https:// endpoint.': 'এই পেজ https:// দিয়ে চলে, তাই ব্রাউজার শুধু https:// এন্ডপয়েন্টে পৌঁছাতে পারে।',
+  'Quick setup': 'দ্রুত সেটআপ',
+  'Get an API key from {0}': '{0} থেকে API কী নিন',
+  'This browser calls the provider directly with your key. Every request is charged to your account.': 'এই ব্রাউজার আপনার কী দিয়ে সরাসরি প্রদানকারীকে কল করে। প্রতিটি অনুরোধের খরচ আপনার অ্যাকাউন্টে যায়।',
+  'The key is kept in this browser on this device and is only ever sent to the provider.': 'কী-টি এই ডিভাইসের এই ব্রাউজারেই থাকে এবং শুধু প্রদানকারীকে পাঠানো হয়।',
+  'What leaves this device': 'এই ডিভাইস থেকে যা বাইরে যায়',
+  'Turn the Coach off in this browser': 'এই ব্রাউজারে কোচ বন্ধ করুন',
+  'Runs in this browser with your own API key': 'আপনার নিজের API কী দিয়ে এই ব্রাউজারে চলে'
 }

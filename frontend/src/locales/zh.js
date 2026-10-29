@@ -2242,4 +2242,12 @@ export default {
   'Your sports watch, calling you back.': '你的运动手表在叫你回来。',
   'Coach wants you back on the bar.': '教练等你回到杠铃前。',
   'Gentle, for headphones or a quiet room.': '轻柔，适合耳机或安静的房间。',
+  'This page is served over https://, so the browser can only reach an https:// endpoint.': '此页面通过 https:// 提供，所以浏览器只能连接 https:// 端点。',
+  'Quick setup': '快速设置',
+  'Get an API key from {0}': '获取 API 密钥：{0}',
+  'This browser calls the provider directly with your key. Every request is charged to your account.': '此浏览器使用你的密钥直接调用提供商。每个请求都会计入你的账户。',
+  'The key is kept in this browser on this device and is only ever sent to the provider.': '密钥只保存在这台设备的此浏览器中，除调用提供商外不会发送到任何地方。',
+  'What leaves this device': '哪些数据会离开此设备',
+  'Turn the Coach off in this browser': '在此浏览器中关闭教练',
+  'Runs in this browser with your own API key': '在此浏览器中使用你自己的 API 密钥运行'
 }

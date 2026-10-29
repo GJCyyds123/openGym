@@ -41,6 +41,18 @@ const hostOf = url => { try { return new URL(url).host; } catch { return url; } 
 const schemeOf = url => { try { return new URL(url).protocol === 'http:' ? 'HTTP' : 'HTTPS'; } catch { return 'HTTPS'; } };
 const trim = (s, n = 300) => String(s == null ? '' : s).slice(0, n);
 
+/** The output ceiling a 400 names when the one asked for is over the model's own: "the valid
+ *  range of max_tokens is [1, 8192]" (DeepSeek), "Range of max_tokens should be [1, 16384]"
+ *  (DashScope), "…supports at most 4096 completion tokens" (OpenAI-style). null when it names
+ *  none — then the 400 is a real failure, not a number to retry with. */
+export function maxTokensCapOf(msg) {
+  const s = String(msg || '');
+  if (!/max_(?:completion_)?tokens|output tokens|completion tokens/i.test(s)) return null;
+  const m = /\[\s*\d+\s*,\s*(\d+)\s*\]/.exec(s) || /(?:at most|less than or equal to|<=)\s*(\d+)/i.exec(s);
+  const n = m ? +m[1] : 0;
+  return n > 0 ? n : null;
+}
+
 // A base that already names its API version (OpenRouter's …/api/v1, Zhipu's …/paas/v4, Gemini's
 // …/v1beta/openai) is the whole prefix, so the spec's own leading version is dropped instead of
 // doubled into …/v4/v1/chat/completions (#437). A bare host still gets the spec's version.
@@ -165,8 +177,13 @@ export function httpAdapter(spec) {
       const chosen = model || meta.defaultModel;
       if (!chosen) return { code: 1, text: '', stderr: `no model chosen for ${id} (pick one from the list the endpoint serves)` };
 
-      let body = spec.body({ model: chosen, prompt, system: system || null, schema: schema || null, maxTokens });
       let retriedWithoutJsonMode = false;
+      let retriedAtCap = false;
+      const bodyFor = tokens => {
+        const b = spec.body({ model: chosen, prompt, system: system || null, schema: schema || null, maxTokens: tokens });
+        return retriedWithoutJsonMode ? spec.withoutJsonMode(b) : b;
+      };
+      let body = bodyFor(maxTokens);
       let transientRetries = 0;
       for (;;) {
         let res;
@@ -192,6 +209,15 @@ export function httpAdapter(spec) {
           if (res.status === 400 && spec.withoutJsonMode && !retriedWithoutJsonMode && /response_format|json_schema|json_object|json mode|structured/i.test(msg)) {
             body = spec.withoutJsonMode(body);
             retriedWithoutJsonMode = true;
+            continue;
+          }
+          // A model that writes less than the ceiling asked for refuses the whole request rather
+          // than writing less (deepseek-chat stops at 8192). Once, at the limit it named: a plan
+          // fits well under that, and a cut-off answer still fails as "truncated" below.
+          const cap = res.status === 400 && !retriedAtCap ? maxTokensCapOf(msg) : null;
+          if (cap && cap < maxTokens) {
+            body = bodyFor(cap);
+            retriedAtCap = true;
             continue;
           }
           return { code: 1, text: '', stderr: `${res.status} ${trim(msg, 280)}` };

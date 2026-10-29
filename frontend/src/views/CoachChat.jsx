@@ -22,7 +22,7 @@ import { fmtDate, fmtNum, DAYS, weekOrder, weekStartOf } from '../lib/format.js'
 import { exLine } from '../lib/history.js'
 import { speedUnitOf } from '../lib/speed.js'
 import { DEMO } from '../lib/demo.js'
-import { MOBILE } from '../lib/mobile.js'
+import { deviceCoach } from '../lib/coach-device.js'
 import {
   coachAvailable, hasConsent, emptyCoach, appendChat, recordTiming, estimateMs, profileLines,
   markStale, applicable, applyChangeSet, applyCreatedPlan, recordDismissal, recordDebrief, logEntry,
@@ -54,7 +54,7 @@ export default function CoachChat() {
   const prevJob = useRef(null)
   const coachMode = coachLocal?.mode
 
-  const ok = coachAvailable(config, user, { demo: DEMO, mobile: MOBILE, coachMode })
+  const ok = coachAvailable(config, user, { demo: DEMO, mobile: deviceCoach(), coachMode })
   const ready = ok && hasConsent(S) && !!S.coach?.profile
   // Not before the store has loaded: a cold start straight on #/coach would otherwise read an
   // empty state, decide there is no consent, and bounce a consenting user into the intake.
@@ -98,7 +98,7 @@ export default function CoachChat() {
 
   if (!ready) return null
   const coach = S.coach || emptyCoach()
-  const community = !!config?.coach?.community && !DEMO && !(MOBILE && coachMode === 'byok')
+  const community = !!config?.coach?.community && !DEMO && !(deviceCoach() && coachMode === 'byok')
 
   const send = async () => {
     const msg = text.trim()

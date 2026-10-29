@@ -2297,4 +2297,12 @@ export default {
   'Your sports watch, calling you back.': 'ساعتك الرياضية تناديك للعودة.',
   'Coach wants you back on the bar.': 'المدرب يريدك أن تعود إلى البار.',
   'Gentle, for headphones or a quiet room.': 'هادئ، للسماعات أو لغرفة هادئة.',
+  'This page is served over https://, so the browser can only reach an https:// endpoint.': 'تُقدَّم هذه الصفحة عبر https://، لذا لا يستطيع المتصفح الوصول إلا إلى نقطة نهاية https://.',
+  'Quick setup': 'إعداد سريع',
+  'Get an API key from {0}': 'احصل على مفتاح API من {0}',
+  'This browser calls the provider directly with your key. Every request is charged to your account.': 'يتصل هذا المتصفح بالمزود مباشرة بمفتاحك. يُحاسب حسابك على كل طلب.',
+  'The key is kept in this browser on this device and is only ever sent to the provider.': 'يُحفظ المفتاح في هذا المتصفح على هذا الجهاز ولا يُرسل إلا إلى المزود.',
+  'What leaves this device': 'ما يغادر هذا الجهاز',
+  'Turn the Coach off in this browser': 'إيقاف المدرب في هذا المتصفح',
+  'Runs in this browser with your own API key': 'يعمل في هذا المتصفح بمفتاح API خاص بك'
 }

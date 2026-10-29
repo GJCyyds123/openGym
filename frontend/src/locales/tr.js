@@ -2242,4 +2242,12 @@ export default {
   'Your sports watch, calling you back.': 'Spor saatin seni geri çağırıyor.',
   'Coach wants you back on the bar.': 'Koç seni bara geri bekliyor.',
   'Gentle, for headphones or a quiet room.': 'Sakin, kulaklık ya da sessiz bir oda için.',
+  'This page is served over https://, so the browser can only reach an https:// endpoint.': 'Bu sayfa https:// üzerinden sunuluyor; bu yüzden tarayıcı yalnızca bir https:// uç noktasına ulaşabilir.',
+  'Quick setup': 'Hızlı kurulum',
+  'Get an API key from {0}': '{0} üzerinden API anahtarı al',
+  'This browser calls the provider directly with your key. Every request is charged to your account.': 'Bu tarayıcı sağlayıcıyı doğrudan senin anahtarınla çağırır. Her istek senin hesabına yansır.',
+  'The key is kept in this browser on this device and is only ever sent to the provider.': 'Anahtar bu cihazdaki bu tarayıcıda saklanır ve yalnızca sağlayıcıya gönderilir.',
+  'What leaves this device': 'Bu cihazdan neler gider',
+  'Turn the Coach off in this browser': 'Koçu bu tarayıcıda kapat',
+  'Runs in this browser with your own API key': 'Bu tarayıcıda kendi API anahtarınla çalışır'
 }

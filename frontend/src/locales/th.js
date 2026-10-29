@@ -2253,4 +2253,12 @@ export default {
   'Your sports watch, calling you back.': 'นาฬิกาสปอร์ตเรียกคุณกลับมาแล้ว',
   'Coach wants you back on the bar.': 'โค้ชอยากให้คุณกลับมาที่บาร์',
   'Gentle, for headphones or a quiet room.': 'เบา ๆ สำหรับหูฟังหรือห้องที่เงียบ',
+  'This page is served over https://, so the browser can only reach an https:// endpoint.': 'หน้านี้ให้บริการผ่าน https:// เบราว์เซอร์จึงเข้าถึงได้เฉพาะ endpoint แบบ https://',
+  'Quick setup': 'ตั้งค่าด่วน',
+  'Get an API key from {0}': 'รับคีย์ API จาก {0}',
+  'This browser calls the provider directly with your key. Every request is charged to your account.': 'เบราว์เซอร์นี้เรียกผู้ให้บริการโดยตรงด้วยคีย์ของคุณ ทุกคำขอจะถูกเรียกเก็บจากบัญชีของคุณ',
+  'The key is kept in this browser on this device and is only ever sent to the provider.': 'คีย์ถูกเก็บไว้ในเบราว์เซอร์นี้บนอุปกรณ์นี้ และส่งไปยังผู้ให้บริการเท่านั้น',
+  'What leaves this device': 'อะไรที่ออกจากอุปกรณ์นี้',
+  'Turn the Coach off in this browser': 'ปิดโค้ชในเบราว์เซอร์นี้',
+  'Runs in this browser with your own API key': 'ทำงานในเบราว์เซอร์นี้ด้วยคีย์ API ของคุณเอง'
 }

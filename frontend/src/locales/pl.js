@@ -2242,4 +2242,12 @@ export default {
   'Your sports watch, calling you back.': 'Zegarek sportowy wzywa z powrotem.',
   'Coach wants you back on the bar.': 'Trener czeka przy sztandze.',
   'Gentle, for headphones or a quiet room.': 'Cichy, do słuchawek albo spokojnego pomieszczenia.',
+  'This page is served over https://, so the browser can only reach an https:// endpoint.': 'Ta strona jest serwowana przez https://, więc przeglądarka połączy się tylko z punktem końcowym https://.',
+  'Quick setup': 'Szybka konfiguracja',
+  'Get an API key from {0}': 'Zdobądź klucz API w {0}',
+  'This browser calls the provider directly with your key. Every request is charged to your account.': 'Ta przeglądarka łączy się z dostawcą bezpośrednio z twoim kluczem. Każde zapytanie obciąża twoje konto.',
+  'The key is kept in this browser on this device and is only ever sent to the provider.': 'Klucz zostaje w tej przeglądarce na tym urządzeniu i jest wysyłany tylko do dostawcy.',
+  'What leaves this device': 'Co opuszcza to urządzenie',
+  'Turn the Coach off in this browser': 'Wyłącz Trenera w tej przeglądarce',
+  'Runs in this browser with your own API key': 'Działa w tej przeglądarce z twoim kluczem API'
 }

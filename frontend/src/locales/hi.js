@@ -2242,4 +2242,12 @@ export default {
   'Your sports watch, calling you back.': 'आपकी स्पोर्ट्स घड़ी आपको वापस बुला रही है।',
   'Coach wants you back on the bar.': 'कोच आपको बार पर वापस चाहते हैं।',
   'Gentle, for headphones or a quiet room.': 'धीमी, हेडफ़ोन या शांत कमरे के लिए।',
+  'This page is served over https://, so the browser can only reach an https:// endpoint.': 'यह पेज https:// पर चलता है, इसलिए ब्राउज़र सिर्फ़ https:// एंडपॉइंट तक पहुँच सकता है।',
+  'Quick setup': 'झटपट सेटअप',
+  'Get an API key from {0}': '{0} से API कुंजी लें',
+  'This browser calls the provider directly with your key. Every request is charged to your account.': 'यह ब्राउज़र आपकी कुंजी से सीधे प्रदाता को कॉल करता है। हर अनुरोध का शुल्क आपके खाते से लिया जाता है।',
+  'The key is kept in this browser on this device and is only ever sent to the provider.': 'कुंजी इस डिवाइस के इसी ब्राउज़र में रहती है और सिर्फ़ प्रदाता को भेजी जाती है।',
+  'What leaves this device': 'इस डिवाइस से क्या बाहर जाता है',
+  'Turn the Coach off in this browser': 'इस ब्राउज़र में कोच बंद करें',
+  'Runs in this browser with your own API key': 'इस ब्राउज़र में आपकी अपनी API कुंजी से चलता है'
 }

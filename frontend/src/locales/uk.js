@@ -2239,4 +2239,12 @@ export default {
   'Your sports watch, calling you back.': 'Ваш спортивний годинник кличе вас назад.',
   'Coach wants you back on the bar.': 'Тренер чекає вас назад біля штанги.',
   'Gentle, for headphones or a quiet room.': 'Тихий, для навушників або спокійної кімнати.',
+  'This page is served over https://, so the browser can only reach an https:// endpoint.': 'Ця сторінка відкрита через https://, тож браузер може звертатися лише до ендпоінта https://.',
+  'Quick setup': 'Швидке налаштування',
+  'Get an API key from {0}': 'Отримати API-ключ у {0}',
+  'This browser calls the provider directly with your key. Every request is charged to your account.': 'Цей браузер звертається до постачальника напряму з твоїм ключем. Кожен запит списується з твого рахунку.',
+  'The key is kept in this browser on this device and is only ever sent to the provider.': 'Ключ зберігається в цьому браузері на цьому пристрої і надсилається лише постачальнику.',
+  'What leaves this device': 'Що йде з цього пристрою',
+  'Turn the Coach off in this browser': 'Вимкнути тренера в цьому браузері',
+  'Runs in this browser with your own API key': 'Працює в цьому браузері з твоїм API-ключем'
 }

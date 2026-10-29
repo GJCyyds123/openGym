@@ -211,6 +211,59 @@ test('compatible: a server that rejects JSON mode gets the same request once mor
   assert.ok(!('response_format' in f.calls[1].body));
 });
 
+test('compatible: a model whose output ceiling is below ours is asked once more at the ceiling it names', async () => {
+  const f = fakeFetch(n => n === 1
+    ? { status: 400, body: { error: { message: 'Invalid max_tokens value, the valid range of max_tokens is [1, 8192]' } } }
+    : ok({ choices: [{ message: { content: ANSWER }, finish_reason: 'stop' }] }));
+  const r = await compatible.invoke({ cfg: cfgCompat, prompt: 'P', env: {}, model: 'deepseek-chat', fetch: f });
+  assert.equal(r.code, 0);
+  assert.equal(f.calls.length, 2);
+  assert.equal(f.calls[0].body.max_tokens, 16000);
+  assert.equal(f.calls[1].body.max_tokens, 8192);
+  assert.ok('response_format' in f.calls[1].body, 'only the ceiling changes');
+});
+
+test('compatible: the ceiling retry happens once, and only for a 400 that names a smaller one', async () => {
+  // Says nothing usable: a plain 400 stays the failure it is.
+  let f = fakeFetch([{ status: 400, body: { error: { message: 'max_tokens is invalid' } } }]);
+  let r = await compatible.invoke({ cfg: cfgCompat, prompt: 'P', env: {}, model: 'm', fetch: f });
+  assert.equal(r.code, 1);
+  assert.equal(f.calls.length, 1);
+  // Names one, but the request was already under it.
+  f = fakeFetch([{ status: 400, body: { error: { message: 'Range of max_tokens should be [1, 32768]' } } }]);
+  r = await compatible.invoke({ cfg: cfgCompat, prompt: 'P', env: {}, model: 'm', fetch: f });
+  assert.equal(f.calls.length, 1);
+  // Refused again at the ceiling: no loop.
+  f = fakeFetch([{ status: 400, body: { error: { message: 'Range of max_tokens should be [1, 8192]' } } }]);
+  r = await compatible.invoke({ cfg: cfgCompat, prompt: 'P', env: {}, model: 'm', fetch: f });
+  assert.equal(r.code, 1);
+  assert.equal(f.calls.length, 2);
+  assert.ok(r.stderr.startsWith('400'));
+});
+
+test('compatible: the ceiling retry keeps a JSON-mode fallback that already happened', async () => {
+  const f = fakeFetch(n => n === 1
+    ? { status: 400, body: { error: { message: 'response_format is not supported' } } }
+    : n === 2
+      ? { status: 400, body: { error: { message: 'Range of max_tokens should be [1, 8192]' } } }
+      : ok({ choices: [{ message: { content: ANSWER }, finish_reason: 'stop' }] }));
+  const r = await compatible.invoke({ cfg: cfgCompat, prompt: 'P', env: {}, model: 'm', fetch: f });
+  assert.equal(r.code, 0);
+  assert.equal(f.calls.length, 3);
+  assert.ok(!('response_format' in f.calls[2].body));
+  assert.equal(f.calls[2].body.max_tokens, 8192);
+});
+
+test('maxTokensCapOf reads the ceilings providers name, and nothing else', async () => {
+  const { maxTokensCapOf } = await import('../coach/core/adapters/http.js');
+  assert.equal(maxTokensCapOf('Invalid max_tokens value, the valid range of max_tokens is [1, 8192]'), 8192);
+  assert.equal(maxTokensCapOf('<400> InternalError.Algo.InvalidParameter: Range of max_tokens should be [1, 16384]'), 16384);
+  assert.equal(maxTokensCapOf('max_tokens is too large: 16000. This model supports at most 4096 completion tokens'), 4096);
+  assert.equal(maxTokensCapOf('messages must be an array of length [1, 100]'), null);
+  assert.equal(maxTokensCapOf('max_tokens is invalid'), null);
+  assert.equal(maxTokensCapOf(null), null);
+});
+
 test('a missing key is "missing", like an absent CLI — no request is made', async () => {
   const f = fakeFetch([]);
   const r = await anthropic.invoke({ cfg: {}, prompt: 'P', env: {}, fetch: f });
